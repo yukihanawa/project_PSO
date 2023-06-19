@@ -20,12 +20,9 @@ Y_MIN = -10
 w = 0.5
 rho_max = 0.5
 
-#評価関数
-def fitness(x1,x2):
-    return x1**2 + x2**2
-
 #粒子
 class Particle:
+    #コンストラクタ
     def __init__(self,x,y):
         #位置
         self.x, self.y = x, y
@@ -33,6 +30,8 @@ class Particle:
         self.vx, self.vy = 0.0, 0.0
         #パーソナルベスト
         self.pbest = None
+        #パーソナルベストの評価値
+        self.pbest_fitness = math.inf
         #グローバルベスト
         self.gbest = None
         #評価値
@@ -49,9 +48,13 @@ class Particle:
     def set_gbest(self,gbest):
         self.gbest = gbest
     #位置更新
-    def update_position(self):
+    def update_position(self,x_min,y_min,x_max,y_max):
         self.x += self.vx
         self.y += self.vy
+
+        # 範囲制約
+        self.x = max(min(self.x, x_max), x_min)
+        self.y = max(min(self.y, y_max), y_min)
     #速度更新
     def update_velocity(self,w,rho_max):
         rhox = random.uniform(0,rho_max)
@@ -66,6 +69,7 @@ class Field:
         self.x_min, self.x_max = X_MIN, X_MAX #最小位置,最大位置
         self.y_min, self.y_max = Y_MIN, Y_MAX #最小位置,最大位置
         self.gbest = None #グローバルベスト
+        self.gbest_fitness = math.inf #グローバルベストの評価値
         self.particles = [Particle(random.uniform(X_MIN,X_MAX),random.uniform(Y_MIN,Y_MAX)) for i in range(N)] #粒子生成
         self.update_best() #グローバルベスト更新
     #評価関数
@@ -78,13 +82,22 @@ class Field:
         self.gbest_fitness = self.particles[p_index].pbest_fitness
     #pbest, gbest更新
     def update_best(self):
+        #pbest更新
+        for particle in self.particles:
+            particle.set_fitness(self.fitness(particle.x,particle.y))
+            particle.set_pbest()
         self.__set_g_best()
         for particle in self.particles:
             particle.set_gbest(self.gbest)
-            particle.set_pbest()
     #位置更新, 速度更新
-    def move_update(self):
+    def move_update(self,w,rho_max):
         for particle in self.particles:
             particle.update_velocity(w,rho_max)
-            particle.update_position()
+            particle.update_position(self.x_min,self.y_min,self.x_max,self.y_max)
             particle.set_fitness(self.fitness(particle.x,particle.y))
+
+pso = Field(N,X_MIN,X_MAX,Y_MIN,Y_MAX)
+for i in range(MAX_ITERATION):
+    pso.move_update()
+    pso.update_best()
+    print("iteration: {0}, gbest: {1}".format(i,pso.gbest))
