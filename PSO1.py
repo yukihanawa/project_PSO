@@ -98,6 +98,6 @@ class Field:
 
 pso = Field(N,X_MIN,X_MAX,Y_MIN,Y_MAX)
 for i in range(MAX_ITERATION):
-    pso.move_update()
+    pso.move_update(w,rho_max)
     pso.update_best()
     print("iteration: {0}, gbest: {1}".format(i,pso.gbest))
