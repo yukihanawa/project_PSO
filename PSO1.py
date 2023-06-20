@@ -36,18 +36,18 @@ class Particle:
         self.gbest = None
         #評価値
         self.fitness = None
-    #適応度更新
+    #適応度更新(値をそのまま代入)
     def set_fitness(self,fitness):
         self.fitness = fitness
-    #pbest更新
+    #pbest更新（評価値が今までのpbestより小さい場合座標と評価値を更新）
     def set_pbest(self):
         if self.pbest is None or self.fitness < self.pbest_fitness:
             self.pbest = (self.x,self.y)
             self.pbest_fitness = self.fitness
-    #gbest更新
+    #gbest更新（値をその間代入）
     def set_gbest(self,gbest):
         self.gbest = gbest
-    #位置更新
+    #位置更新（次の位置へ移動）
     def update_position(self,x_min,y_min,x_max,y_max):
         self.x += self.vx
         self.y += self.vy
@@ -77,9 +77,9 @@ class Field:
         return x1**2 + x2**2
     #gbest計算
     def __set_g_best(self):
-        p_index = np.argmin([p.fitness for p in self.particles])
-        self.gbest = self.particles[p_index].pbest
-        self.gbest_fitness = self.particles[p_index].pbest_fitness
+        p_index = np.argmin([p.fitness for p in self.particles]) #評価値が最小の粒子のインデックス
+        self.gbest = self.particles[p_index].pbest #gbest更新
+        self.gbest_fitness = self.particles[p_index].pbest_fitness #gbestの評価値更新
     #pbest, gbest更新
     def update_best(self):
         #pbest更新
