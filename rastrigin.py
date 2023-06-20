@@ -3,17 +3,20 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
-# Rastrigin関数の定義
-def rastrigin(x, y, A=10):
-    return 2 * A + x**2 - A * np.cos(2 * np.pi * x) + y**2 - A * np.cos(2 * np.pi * y)
+# Rastrigin関数の定義 (N次元対応)
+def rastrigin(x, A=10):
+    n = len(x)
+    return A * n + sum(xi**2 - A * np.cos(2 * np.pi * xi) for xi in x)
 
-# xとyの値の範囲を設定
+# xとyの値の範囲を設定 (2次元の例)
 x = np.linspace(-5.12, 5.12, 100)
 y = np.linspace(-5.12, 5.12, 100)
 
 # グリッドを作成
 X, Y = np.meshgrid(x, y)
-Z = rastrigin(X, Y)
+
+# Zを計算 (2次元の例)
+Z = np.array([[rastrigin([xi, yi]) for xi, yi in zip(x_row, y_row)] for x_row, y_row in zip(X, Y)])
 
 # 3Dプロットを作成
 fig = plt.figure(figsize=(8, 6))
