@@ -19,6 +19,7 @@ X_MIN = -10
 Y_MIN = -10
 w = 0.5
 rho_max = 0.5
+seed = 0
 
 #粒子
 class Particle:

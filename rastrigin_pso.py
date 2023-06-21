@@ -101,3 +101,4 @@ for i in range(MAX_ITERATION):
     pso.move_update(w,rho_max)
     pso.update_best()
     print("iteration: {0}, gbest: {1}, gbest_fitness:{2}".format(i,pso.gbest,pso.gbest_fitness))
+
