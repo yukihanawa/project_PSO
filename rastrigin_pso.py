@@ -1,104 +1,93 @@
 import random
 import math
-from typing import Any
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
-#パラメータ
-#粒子数
-N = 10
-#最大繰り返し回数
-MAX_ITERATION = 100
-#最大位置
-X_MAX = 10
-Y_MAX = 10
-#最小位置
-X_MIN = -10
-Y_MIN = -10
-w = 0.5
-rho_max = 0.5
+# Parameters
+N = 10                 # Number of particles
+MAX_ITERATION = 100   # Maximum number of iterations
+D = 2                 # Number of dimensions
+POS_MAX = 10          # Maximum position in each dimension
+POS_MIN = -10         # Minimum position in each dimension
+w = 0.5               # Inertia weight
+rho_max = 0.5         # Maximum value for rho
 
-#粒子
+# Particle class
 class Particle:
-    #コンストラクタ
-    def __init__(self,x,y):
-        #位置
-        self.x, self.y = x, y
-        #速度
-        self.vx, self.vy = 0.0, 0.0
-        #パーソナルベスト
+    def __init__(self, D):
+        self.position = np.random.uniform(POS_MIN, POS_MAX, D)
+        self.velocity = np.zeros(D)
         self.pbest = None
-        #パーソナルベストの評価値
         self.pbest_fitness = math.inf
-        #グローバルベスト
         self.gbest = None
-        #評価値
         self.fitness = None
-    #適応度更新(値をそのまま代入)
-    def set_fitness(self,fitness):
+    
+    def set_fitness(self, fitness):
         self.fitness = fitness
-    #pbest更新（評価値が今までのpbestより小さい場合座標と評価値を更新）
+    
     def set_pbest(self):
         if self.pbest is None or self.fitness < self.pbest_fitness:
-            self.pbest = (self.x,self.y)
+            self.pbest = self.position.copy()
             self.pbest_fitness = self.fitness
-    #gbest更新（値をその間代入）
-    def set_gbest(self,gbest):
+    
+    def set_gbest(self, gbest):
         self.gbest = gbest
-    #位置更新（次の位置へ移動）
-    def update_position(self,x_min,y_min,x_max,y_max):
-        self.x += self.vx
-        self.y += self.vy
+    
+    def update_position(self):
+        self.position += self.velocity
+        self.position = np.clip(self.position, POS_MIN, POS_MAX)
+    
+    def update_velocity(self, w, rho_max):
+        rho = np.random.uniform(0, rho_max, len(self.velocity))
+        self.velocity = w * self.velocity + rho * (self.pbest - self.position) + rho * (self.gbest - self.position)
 
-        # 範囲制約
-        self.x = max(min(self.x, x_max), x_min)
-        self.y = max(min(self.y, y_max), y_min)
-    #速度更新
-    def update_velocity(self,w,rho_max):
-        rhox = random.uniform(0,rho_max)
-        rhoy = random.uniform(0,rho_max)
-        self.vx = w*self.vx + rhox*(self.pbest[0]-self.x) + rhoy*(self.gbest[0]-self.x)
-        self.vy = w*self.vy + rhox*(self.pbest[1]-self.y) + rhoy*(self.gbest[1]-self.y)
-
-#フィールド
+# Field class
 class Field:
-    def __init__(self,N,X_MIN,X_MAX,Y_MIN,Y_MAX):
-        self.N = N #粒子数
-        self.x_min, self.x_max = X_MIN, X_MAX #最小位置,最大位置
-        self.y_min, self.y_max = Y_MIN, Y_MAX #最小位置,最大位置
-        self.gbest = None #グローバルベスト
-        self.gbest_fitness = math.inf #グローバルベストの評価値
-        self.particles = [Particle(random.uniform(X_MIN,X_MAX),random.uniform(Y_MIN,Y_MAX)) for i in range(N)] #粒子生成
-        self.update_best() #グローバルベスト更新
-    #評価関数
-    def fitness(self,x1,x2):
-        A = 10
-        return 2 * A + (x1 ** 2 - A * math.cos(2 * math.pi * x1)) + (x2 ** 2 - A * math.cos(2 * math.pi * x2))
-    #gbest計算
+    def __init__(self, N, D, function_name):
+        self.N = N
+        self.D = D
+        self.function_name = function_name
+        self.gbest = None
+        self.gbest_fitness = math.inf
+        self.particles = [Particle(D) for _ in range(N)]
+        self.update_best()
+    
+    def fitness(self, position):
+        if self.function_name == "rastrigin":
+            return self.D * 10 + np.sum(position ** 2 - 10 * np.cos(2 * np.pi * position))
+        elif self.function_name == "rosenbrock":
+            return np.sum(100.0 * (position[1:] - position[:-1]**2.0)**2.0 + (1 - position[:-1])**2.0)
+        else:
+            raise ValueError("Invalid function name")
+    
     def __set_g_best(self):
-        p_index = np.argmin([p.fitness for p in self.particles]) #評価値が最小の粒子のインデックス
-        self.gbest = self.particles[p_index].pbest #gbest更新
-        self.gbest_fitness = self.particles[p_index].pbest_fitness #gbestの評価値更新
-    #pbest, gbest更新
+        p_index = np.argmin([p.fitness for p in self.particles])
+        self.gbest = self.particles[p_index].pbest.copy()
+        self.gbest_fitness = self.particles[p_index].pbest_fitness
+    
     def update_best(self):
-        #pbest更新
         for particle in self.particles:
-            particle.set_fitness(self.fitness(particle.x,particle.y))
+            particle.set_fitness(self.fitness(particle.position))
             particle.set_pbest()
         self.__set_g_best()
         for particle in self.particles:
             particle.set_gbest(self.gbest)
-    #位置更新, 速度更新
-    def move_update(self,w,rho_max):
+    
+    def move_update(self, w, rho_max):
         for particle in self.particles:
-            particle.update_velocity(w,rho_max)
-            particle.update_position(self.x_min,self.y_min,self.x_max,self.y_max)
-            particle.set_fitness(self.fitness(particle.x,particle.y))
+            particle.update_velocity(w, rho_max)
+            particle.update_position()
+            particle.set_fitness(self.fitness(particle.position))
 
-pso = Field(N,X_MIN,X_MAX,Y_MIN,Y_MAX)
+# PSO Algorithm with Rastrigin Function
+pso = Field(N, D, "rastrigin")
 for i in range(MAX_ITERATION):
-    pso.move_update(w,rho_max)
+    pso.move_update(w, rho_max)
     pso.update_best()
-    print("iteration: {0}, gbest: {1}, gbest_fitness:{2}".format(i,pso.gbest,pso.gbest_fitness))
+    print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
 
+# PSO Algorithm with Rosenbrock Function
+pso = Field(N, D, "rosenbrock")
+for i in range(MAX_ITERATION):
+    pso.move_update(w, rho_max)
+    pso.update_best()
+    print(f"Rosenbrock, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
