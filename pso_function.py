@@ -4,8 +4,8 @@ import numpy as np
 import csv
 
 # Parameters
-N = 10                 # Number of particles
-MAX_ITERATION = 100   # Maximum number of iterations
+N = 100                 # Number of particles
+MAX_ITERATION = 10000   # Maximum number of iterations
 D = 2                 # Number of dimensions
 POS_MAX = 10          # Maximum position in each dimension
 POS_MIN = -10         # Minimum position in each dimension
@@ -86,10 +86,11 @@ class Field:
             particle.set_fitness(self.fitness(particle.position))
 
 # PSO Algorithm with Rastrigin Function
-pso = Field(N, D, "rastrigin")
+function = "rastrigin"
+pso = Field(N, D, function)
 
 #ファイル名を作成
-filename = f'rastrigin_seed{seed}.csv'
+filename = f'{function}_seed{seed}.csv'
 
 #ファイルを開く
 with open(filename, 'w', newline='') as csvfile:
@@ -102,7 +103,7 @@ with open(filename, 'w', newline='') as csvfile:
     for i in range(MAX_ITERATION):
         pso.move_update(w, rho_max)
         pso.update_best()
-        print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
+        #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
         csv_writer.writerow([i, pso.gbest_fitness])
 
 # PSO Algorithm with Rosenbrock Function
