@@ -102,3 +102,14 @@ for i in range(MAX_ITERATION):
     pso.move_update(w,rho_max)
     pso.update_best()
     print("iteration: {0}, gbest: {1}".format(i,pso.gbest))
+
+#アニメーション
+fig = plt.figure()
+ims = []
+for i in range(MAX_ITERATION):
+    pso.move_update(w,rho_max)
+    pso.update_best()
+    im = plt.scatter([p.x for p in pso.particles],[p.y for p in pso.particles],c="b")
+    ims.append([im])
+ani = animation.ArtistAnimation(fig, ims, interval=100)
+plt.show()
