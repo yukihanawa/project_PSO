@@ -1,6 +1,7 @@
 import random
 import math
 import numpy as np
+import csv
 
 # Parameters
 N = 10                 # Number of particles
@@ -10,6 +11,12 @@ POS_MAX = 10          # Maximum position in each dimension
 POS_MIN = -10         # Minimum position in each dimension
 w = 0.5               # Inertia weight
 rho_max = 0.5         # Maximum value for rho
+
+# Seed for random number generation
+seed = 0
+# Random number generator
+random.seed(seed)
+np.random.seed(seed)
 
 # Particle class
 class Particle:
@@ -80,10 +87,23 @@ class Field:
 
 # PSO Algorithm with Rastrigin Function
 pso = Field(N, D, "rastrigin")
-for i in range(MAX_ITERATION):
-    pso.move_update(w, rho_max)
-    pso.update_best()
-    print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
+
+#ファイル名を作成
+filename = f'rastrigin_seed{seed}.csv'
+
+#ファイルを開く
+with open(filename, 'w', newline='') as csvfile:
+    #ファイルに書き込み
+    csv_writer = csv.writer(csvfile)
+
+    #ヘッダーを書き込み
+    csv_writer.writerow(['iteration', 'gbest_fitness'])
+
+    for i in range(MAX_ITERATION):
+        pso.move_update(w, rho_max)
+        pso.update_best()
+        print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
+        csv_writer.writerow([i, pso.gbest_fitness])
 
 # PSO Algorithm with Rosenbrock Function
 # pso = Field(N, D, "rosenbrock")
