@@ -2,6 +2,7 @@ import random
 import math
 import numpy as np
 import csv
+import os
 
 # パラメータ
 N = 100                 # 粒子数
@@ -84,6 +85,8 @@ class Field:
 function_name = ["rastrigin", "rosenbrock"]
 
 for function in function_name:
+    output_directory = f'./{function}' #出力先のディレクトリを作成
+    os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
     #シード値を変えて実行
     for seed in range(31):
         np.random.seed(seed)
@@ -93,8 +96,10 @@ for function in function_name:
         #ファイル名を作成
         filename = f'{function}_seed{seed}.csv'
 
+        filepath = os.path.join(output_directory, filename) #ファイルのパスを作成
+
         #ファイルを開く
-        with open(filename, 'w', newline='') as csvfile:
+        with open(filepath, 'w', newline='') as csvfile:
             #ファイルに書き込み
             csv_writer = csv.writer(csvfile)
 
