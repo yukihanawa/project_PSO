@@ -12,10 +12,7 @@ POS_MIN = -10         # 最小値
 w = 0.5
 rho_max = 0.5
 
-# シード
-seed = 0
-# random.seed(seed)
-np.random.seed(seed)
+
 
 # 粒子クラス
 class Particle:
@@ -84,23 +81,28 @@ class Field:
             particle.update_position()
             particle.set_fitness(self.fitness(particle.position))
 
-# PSO Algorithm with Rastrigin or Rosenbrock Function
-function = "rastrigin"
-pso = Field(N, D, function)
+function_name = ["rastrigin", "rosenbrock"]
 
-#ファイル名を作成
-filename = f'{function}_seed{seed}.csv'
+for function in function_name:
+    #シード値を変えて実行
+    for seed in range(31):
+        np.random.seed(seed)
+        # PSO Algorithm with Rastrigin or Rosenbrock Function
+        pso = Field(N, D, function)
 
-#ファイルを開く
-with open(filename, 'w', newline='') as csvfile:
-    #ファイルに書き込み
-    csv_writer = csv.writer(csvfile)
+        #ファイル名を作成
+        filename = f'{function}_seed{seed}.csv'
 
-    #ヘッダーを書き込み
-    csv_writer.writerow(['iteration', 'gbest_fitness'])
+        #ファイルを開く
+        with open(filename, 'w', newline='') as csvfile:
+            #ファイルに書き込み
+            csv_writer = csv.writer(csvfile)
 
-    for i in range(MAX_ITERATION):
-        pso.move_update(w, rho_max)
-        pso.update_best()
-        #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
-        csv_writer.writerow([i, pso.gbest_fitness])
+            #ヘッダーを書き込み
+            csv_writer.writerow(['iteration', 'gbest_fitness'])
+
+            for i in range(MAX_ITERATION):
+                pso.move_update(w, rho_max)
+                pso.update_best()
+                #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
+                csv_writer.writerow([i, pso.gbest_fitness])
