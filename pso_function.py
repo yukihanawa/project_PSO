@@ -9,8 +9,6 @@ import merge_csv
 N = 100                 # 粒子数
 MAX_ITERATION = 100   # 世代数
 D = 2                 # 次元数
-POS_MAX = 10          # 最大値
-POS_MIN = -10         # 最小値
 w = 0.5
 rho_max = 0.5
 
@@ -88,6 +86,18 @@ function_name = ["rastrigin", "rosenbrock"]
 for function in function_name:
     output_directory = f'./{function}' #出力先のディレクトリを作成
     os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
+    # functionの値に基づいてPOS_MAXとPOS_MINを設定
+    if function == 'rastrigin':
+        POS_MAX = 5.12
+        POS_MIN = -5.12
+    elif function == 'rosenbrock':
+        POS_MAX = 2.048
+        POS_MIN = -2.048
+    else:
+        print("Unknown function")
+        POS_MAX = None
+        POS_MIN = None
+
     #シード値を変えて実行
     for seed in range(31):
         np.random.seed(seed)
