@@ -3,6 +3,7 @@ import math
 import numpy as np
 import csv
 import os
+import merge_csv
 
 # パラメータ
 N = 100                 # 粒子数
@@ -111,3 +112,4 @@ for function in function_name:
                 pso.update_best()
                 #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
                 csv_writer.writerow([i, pso.gbest_fitness])
+merge_csv.make_csv()
