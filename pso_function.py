@@ -8,7 +8,7 @@ import merge_csv
 # パラメータ
 N = 100                 # 粒子数
 MAX_ITERATION = 100   # 世代数
-D = 2                 # 次元数
+D = 10                 # 次元数
 w = 0.5
 rho_max = 0.5
 
@@ -99,7 +99,7 @@ for function in function_name:
         POS_MIN = None
 
     #シード値を変えて実行
-    for seed in range(31):
+    for seed in range(11):
         np.random.seed(seed)
         # PSO Algorithm with Rastrigin or Rosenbrock Function
         pso = Field(N, D, function)
