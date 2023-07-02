@@ -7,10 +7,11 @@ import merge_csv
 
 # パラメータ
 N = 100                 # 粒子数
-MAX_ITERATION = 100   # 世代数
+MAX_ITERATION = 30   # 世代数
 D = 10                 # 次元数
-w = 0.5
-rho_max = 0.5
+w = 0.5                # 慣性係数
+c1 = 1.49445           # 加速係数(pbest)
+c2 = 1.49445            # 加速係数(gbest)
 
 
 
@@ -39,9 +40,10 @@ class Particle:
         self.position += self.velocity
         self.position = np.clip(self.position, POS_MIN, POS_MAX)
 
-    def update_velocity(self, w, rho_max):
-        rho = np.random.uniform(0, rho_max, len(self.velocity))
-        self.velocity = w * self.velocity + rho * (self.pbest - self.position) + rho * (self.gbest - self.position)
+    def update_velocity(self, w):
+        rho1 = random.random()
+        rho2 = random.random()
+        self.velocity = w * self.velocity + c1 * rho1 * (self.pbest - self.position) + c2 * rho2 * (self.gbest - self.position)
 
 # フィールドクラス
 class Field:
@@ -75,51 +77,50 @@ class Field:
         for particle in self.particles:
             particle.set_gbest(self.gbest)
 
-    def move_update(self, w, rho_max):
+    def move_update(self, w):
         for particle in self.particles:
-            particle.update_velocity(w, rho_max)
+            particle.update_velocity(w)
             particle.update_position()
             particle.set_fitness(self.fitness(particle.position))
 
-function_name = ["rastrigin", "rosenbrock"]
+function = "rastrigin"
 
-for function in function_name:
-    output_directory = f'./{function}' #出力先のディレクトリを作成
-    os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
-    # functionの値に基づいてPOS_MAXとPOS_MINを設定
-    if function == 'rastrigin':
-        POS_MAX = 5.12
-        POS_MIN = -5.12
-    elif function == 'rosenbrock':
-        POS_MAX = 2.048
-        POS_MIN = -2.048
-    else:
-        print("Unknown function")
-        POS_MAX = None
-        POS_MIN = None
+output_directory = f'./{function}' #出力先のディレクトリを作成
+os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
+# functionの値に基づいてPOS_MAXとPOS_MINを設定
+if function == 'rastrigin':
+    POS_MAX = 5.12
+    POS_MIN = -5.12
+elif function == 'rosenbrock':
+    POS_MAX = 2.048
+    POS_MIN = -2.048
+else:
+    print("Unknown function")
+    POS_MAX = None
+    POS_MIN = None
 
-    #シード値を変えて実行
-    for seed in range(11):
-        np.random.seed(seed)
-        # PSO Algorithm with Rastrigin or Rosenbrock Function
-        pso = Field(N, D, function)
+#シード値を変えて実行
+for seed in range(11):
+    np.random.seed(seed)
+    # PSO Algorithm with Rastrigin or Rosenbrock Function
+    pso = Field(N, D, function)
 
-        #ファイル名を作成
-        filename = f'{function}_seed{seed}.csv'
+    #ファイル名を作成
+    filename = f'{function}_seed{seed}.csv'
 
-        filepath = os.path.join(output_directory, filename) #ファイルのパスを作成
+    filepath = os.path.join(output_directory, filename) #ファイルのパスを作成
 
-        #ファイルを開く
-        with open(filepath, 'w', newline='') as csvfile:
-            #ファイルに書き込み
-            csv_writer = csv.writer(csvfile)
+    #ファイルを開く
+    with open(filepath, 'w', newline='') as csvfile:
+        #ファイルに書き込み
+        csv_writer = csv.writer(csvfile)
 
-            #ヘッダーを書き込み
-            csv_writer.writerow(['iteration', 'gbest_fitness'])
+        #ヘッダーを書き込み
+        csv_writer.writerow(['iteration', 'gbest_fitness'])
 
-            for i in range(MAX_ITERATION):
-                pso.move_update(w, rho_max)
-                pso.update_best()
-                #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
-                csv_writer.writerow([i, pso.gbest_fitness])
+        for i in range(MAX_ITERATION):
+            pso.move_update(w)
+            pso.update_best()
+            #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
+            csv_writer.writerow([i, pso.gbest_fitness])
 merge_csv.make_csv()
