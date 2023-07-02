@@ -10,8 +10,8 @@ N = 100                 # 粒子数
 MAX_ITERATION = 30   # 世代数
 D = 10                 # 次元数
 w = 0.5                # 慣性係数
-c1 = 1.49445           # 加速係数(pbest)
-c2 = 1.49445            # 加速係数(gbest)
+c1 = 2           # 加速係数(pbest)
+c2 = 1           # 加速係数(gbest)
 
 
 
@@ -85,7 +85,7 @@ class Field:
 
 function = "rastrigin"
 
-output_directory = f'./{function}' #出力先のディレクトリを作成
+output_directory = f'./{function}_{w}_{c1}_{c2}' #出力先のディレクトリを作成
 os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
 # functionの値に基づいてPOS_MAXとPOS_MINを設定
 if function == 'rastrigin':
@@ -123,4 +123,4 @@ for seed in range(11):
             pso.update_best()
             #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
             csv_writer.writerow([i, pso.gbest_fitness])
-merge_csv.make_csv()
+merge_csv.make_csv(output_directory)
