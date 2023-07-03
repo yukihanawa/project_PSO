@@ -102,6 +102,7 @@ else:
 #シード値を変えて実行
 for seed in range(11):
     np.random.seed(seed)
+    random.seed(seed)
     # PSO Algorithm with Rastrigin or Rosenbrock Function
     pso = Field(N, D, function)
 
