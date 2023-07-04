@@ -9,8 +9,8 @@ import merge_csv
 N = 100                 # 粒子数
 MAX_ITERATION = 30   # 世代数
 D = 10                 # 次元数
-w = 0.5                # 慣性係数
-c1 = 1           # 加速係数(pbest)
+w = 1                # 慣性係数
+c1 = 2           # 加速係数(pbest)
 c2 = 2           # 加速係数(gbest)
 
 
@@ -64,18 +64,24 @@ class Field:
         else:
             raise ValueError("Invalid function name")
 
-    def __set_g_best(self):
-        p_index = np.argmin([p.fitness for p in self.particles])
-        self.gbest = self.particles[p_index].pbest.copy()
-        self.gbest_fitness = self.particles[p_index].pbest_fitness
-
     def update_best(self):
         for particle in self.particles:
             particle.set_fitness(self.fitness(particle.position))
             particle.set_pbest()
-        self.__set_g_best()
+
+        # Find the best particle in this generation
+        p_index = np.argmin([p.pbest_fitness for p in self.particles])
+        current_best_position = self.particles[p_index].pbest
+        current_best_fitness = self.particles[p_index].pbest_fitness
+
+        # Compare with the global best
+        if current_best_fitness < self.gbest_fitness:
+            self.gbest = current_best_position.copy()
+            self.gbest_fitness = current_best_fitness
+
         for particle in self.particles:
             particle.set_gbest(self.gbest)
+
 
     def move_update(self, w):
         for particle in self.particles:
