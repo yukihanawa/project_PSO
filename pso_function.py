@@ -10,8 +10,8 @@ N = 100                 # 粒子数
 MAX_ITERATION = 30   # 世代数
 D = 10                 # 次元数
 w = 0.5                # 慣性係数
-c1 = 2           # 加速係数(pbest)
-c2 = 1           # 加速係数(gbest)
+c1 = 1           # 加速係数(pbest)
+c2 = 2           # 加速係数(gbest)
 
 
 
@@ -119,9 +119,12 @@ for seed in range(11):
         #ヘッダーを書き込み
         csv_writer.writerow(['iteration', 'gbest_fitness'])
 
+        pso.update_best()
+        csv_writer.writerow([0, pso.gbest_fitness])
+
         for i in range(MAX_ITERATION):
             pso.move_update(w)
             pso.update_best()
             #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
-            csv_writer.writerow([i, pso.gbest_fitness])
+            csv_writer.writerow([i+1, pso.gbest_fitness])
 merge_csv.make_csv(output_directory)
