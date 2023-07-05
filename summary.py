@@ -5,7 +5,7 @@ import pandas as pd
 directory = os.path.dirname(os.path.realpath(__file__))
 
 # 新しいExcelファイルを作成
-excel_writer = pd.ExcelWriter('output.xlsx', engine='openpyxl')
+excel_writer = pd.ExcelWriter('output_rastrigin.xlsx', engine='openpyxl')
 
 # 中央値、平均値、標準偏差のデータを格納するためのリスト
 medians = []
