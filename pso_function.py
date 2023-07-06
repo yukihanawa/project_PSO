@@ -8,7 +8,7 @@ import itertools
 
 # パラメータ
 N = 100                 # 粒子数
-MAX_ITERATION = 30   # 世代数
+MAX_ITERATION = 1000  # 世代数
 D = 10                 # 次元数
 # w = 1                # 慣性係数
 # c1 = 2           # 加速係数(pbest)
@@ -16,10 +16,12 @@ D = 10                 # 次元数
 
 #パラメータセット
 function_set = ["rastrigin", "rosenbrock"]
-w_set = [0.3, 0.5]
-c1_set = [1, 1.5, 2]
-c2_set = [1, 1.5, 2]
+# w_set = [0.5]
+# c1_set = [1.5, 2]
+# c2_set = [1.5, 2]
 
+# parameter_set = [(0.5, 2, 2), (0.5, 1.5, 2), (0.5, 1, 1.5)]
+parameter_set = [(0.8,2,2),(0.9,2,2)]
 
 
 # 粒子クラス
@@ -97,51 +99,51 @@ class Field:
             particle.set_fitness(self.fitness(particle.position))
 
 #パラメータの組み合わせを作成
-parameter_set = itertools.product(function_set, w_set, c1_set, c2_set)
-
+# parameter_set = itertools.product(function_set, w_set, c1_set, c2_set)
 #パラメータの組み合わせを順に取り出す
-for function, w, c1, c2 in parameter_set:
+for function in function_set:
+    for  w, c1, c2 in parameter_set:
 
-    output_directory = f'./{function}_{w}_{c1}_{c2}' #出力先のディレクトリを作成
-    os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
-    # functionの値に基づいてPOS_MAXとPOS_MINを設定
-    if function == 'rastrigin':
-        POS_MAX = 5.12
-        POS_MIN = -5.12
-    elif function == 'rosenbrock':
-        POS_MAX = 2.048
-        POS_MIN = -2.048
-    else:
-        print("Unknown function")
-        POS_MAX = None
-        POS_MIN = None
+        output_directory = f'./{function}_{w}_{c1}_{c2}' #出力先のディレクトリを作成
+        os.makedirs(output_directory, exist_ok=True) #ディレクトリを作成
+        # functionの値に基づいてPOS_MAXとPOS_MINを設定
+        if function == 'rastrigin':
+            POS_MAX = 5.12
+            POS_MIN = -5.12
+        elif function == 'rosenbrock':
+            POS_MAX = 2.048
+            POS_MIN = -2.048
+        else:
+            print("Unknown function")
+            POS_MAX = None
+            POS_MIN = None
 
-    #シード値を変えて実行
-    for seed in range(11):
-        np.random.seed(seed)
-        random.seed(seed)
-        # PSO Algorithm with Rastrigin or Rosenbrock Function
-        pso = Field(N, D, function)
+        #シード値を変えて実行
+        for seed in range(11):
+            np.random.seed(seed)
+            random.seed(seed)
+            # PSO Algorithm with Rastrigin or Rosenbrock Function
+            pso = Field(N, D, function)
 
-        #ファイル名を作成
-        filename = f'{function}_seed{seed}.csv'
+            #ファイル名を作成
+            filename = f'{function}_seed{seed}.csv'
 
-        filepath = os.path.join(output_directory, filename) #ファイルのパスを作成
+            filepath = os.path.join(output_directory, filename) #ファイルのパスを作成
 
-        #ファイルを開く
-        with open(filepath, 'w', newline='') as csvfile:
-            #ファイルに書き込み
-            csv_writer = csv.writer(csvfile)
+            #ファイルを開く
+            with open(filepath, 'w', newline='') as csvfile:
+                #ファイルに書き込み
+                csv_writer = csv.writer(csvfile)
 
-            #ヘッダーを書き込み
-            csv_writer.writerow(['iteration', 'gbest_fitness'])
+                #ヘッダーを書き込み
+                csv_writer.writerow(['iteration', 'gbest_fitness'])
 
-            pso.update_best()
-            csv_writer.writerow([0, pso.gbest_fitness])
-
-            for i in range(MAX_ITERATION):
-                pso.move_update(w)
                 pso.update_best()
-                #print(f"Rastrigin, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
-                csv_writer.writerow([i+1, pso.gbest_fitness])
-    merge_csv.make_csv(output_directory)
+                csv_writer.writerow([0, pso.gbest_fitness])
+
+                for i in range(MAX_ITERATION):
+                    pso.move_update(w)
+                    pso.update_best()
+                    #print(f"{function}, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
+                    csv_writer.writerow([i+1, pso.gbest_fitness])
+        merge_csv.make_csv(output_directory)
