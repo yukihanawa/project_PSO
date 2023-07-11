@@ -8,7 +8,7 @@ import itertools
 
 # パラメータ
 N = 100                 # 粒子数
-MAX_ITERATION = 1000  # 世代数
+MAX_ITERATION = 2000  # 世代数
 D = 10                 # 次元数
 # w = 1                # 慣性係数
 # c1 = 2           # 加速係数(pbest)
@@ -21,7 +21,7 @@ function_set = ["rastrigin", "rosenbrock"]
 # c2_set = [1.5, 2]
 
 # parameter_set = [(0.5, 2, 2), (0.5, 1.5, 2), (0.5, 1, 1.5)]
-parameter_set = [(1.0,1.5,1.5)]
+parameter_set = [(1.0,2,2)]
 
 
 # 粒子クラス
