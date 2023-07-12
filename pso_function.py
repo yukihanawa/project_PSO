@@ -15,13 +15,13 @@ D = 10                 # 次元数
 # c2 = 2           # 加速係数(gbest)
 
 #パラメータセット
-function_set = ["rastrigin", "rosenbrock"]
+function_set = ["rastrigin"]
 # w_set = [0.5]
 # c1_set = [1.5, 2]
 # c2_set = [1.5, 2]
 
 # parameter_set = [(0.5, 2, 2), (0.5, 1.5, 2), (0.5, 1, 1.5)]
-parameter_set = [(0.7,1.4,1.4)]
+parameter_set = [(0.8,2,2)]
 
 
 # 粒子クラス
@@ -144,6 +144,10 @@ for function in function_set:
                 for i in range(MAX_ITERATION):
                     pso.move_update(w)
                     pso.update_best()
+                    #各粒子のfitnessの標準偏差を計算
+                    fitness_list = [particle.fitness for particle in pso.particles]
+                    fitness_std = np.std(fitness_list)
+                    print(fitness_std)
                     #print(f"{function}, iteration: {i}, gbest: {pso.gbest}, gbest_fitness: {pso.gbest_fitness}")
                     csv_writer.writerow([i+1, pso.gbest_fitness])
         merge_csv.make_csv(output_directory)
